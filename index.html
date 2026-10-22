@@ -1,440 +1,572 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TubeSpace</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TubeSpace - My Video Library</title>
+  <style>
+    :root {
+      --bg: #0b0b10;
+      --panel: #15151e;
+      --panel2: #20202b;
+      --text: #f5f5f7;
+      --muted: #a1a1aa;
+      --accent: #ff303b;
+      --border: #30303c;
+    }
 
-<style>
-* {
-  box-sizing: border-box;
-}
+    * { box-sizing: border-box; }
 
-body {
-  margin: 0;
-  background: #0f0f0f;
-  color: white;
-  font-family: Arial, sans-serif;
-}
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
 
-header {
-  height: 65px;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 0 22px;
-  background: #0f0f0f;
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  border-bottom: 1px solid #242424;
-}
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background: rgba(11, 11, 16, .95);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 5%;
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+    }
 
-.logo {
-  font-size: 23px;
-  font-weight: bold;
-  white-space: nowrap;
-}
+    .brand {
+      font-size: 25px;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
 
-.logo span {
-  color: #ff3333;
-}
+    .brand span { color: var(--accent); }
 
-.search {
-  display: flex;
-  flex: 1;
-  max-width: 600px;
-  margin: auto;
-}
+    .search {
+      flex: 1;
+      max-width: 400px;
+    }
 
-.search input {
-  width: 100%;
-  padding: 12px 16px;
-  border: 1px solid #444;
-  background: #181818;
-  color: white;
-  border-radius: 25px 0 0 25px;
-  outline: none;
-  font-size: 15px;
-}
+    input, button {
+      font: inherit;
+    }
 
-.search button {
-  padding: 0 20px;
-  border: 1px solid #444;
-  background: #292929;
-  color: white;
-  border-radius: 0 25px 25px 0;
-  cursor: pointer;
-}
+    input {
+      width: 100%;
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 13px 15px;
+      border-radius: 10px;
+      outline: none;
+    }
 
-.layout {
-  display: flex;
-}
+    input:focus { border-color: var(--accent); }
 
-.sidebar {
-  width: 205px;
-  padding: 18px 12px;
-  flex-shrink: 0;
-}
+    main {
+      max-width: 1250px;
+      margin: auto;
+      padding: 35px 5%;
+    }
 
-.sidebar button {
-  display: block;
-  width: 100%;
-  padding: 13px;
-  background: transparent;
-  border: none;
-  color: white;
-  text-align: left;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 15px;
-}
+    .hero { margin-bottom: 28px; }
 
-.sidebar button:hover,
-.sidebar button.active {
-  background: #303030;
-}
+    h1 {
+      font-size: clamp(28px, 5vw, 42px);
+      margin: 0 0 10px;
+    }
 
-main {
-  flex: 1;
-  min-width: 0;
-  padding: 20px;
-}
+    p { color: var(--muted); line-height: 1.6; }
 
-.categories {
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  margin-bottom: 24px;
-}
+    .add-box {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 20px;
+      border-radius: 16px;
+      margin-bottom: 35px;
+    }
 
-.categories button {
-  padding: 9px 15px;
-  background: #272727;
-  color: white;
-  border: none;
-  border-radius: 9px;
-  cursor: pointer;
-  white-space: nowrap;
-}
+    .add-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
 
-.categories button.active,
-.categories button:hover {
-  background: white;
-  color: black;
-}
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 12px 18px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: opacity .2s, transform .2s;
+    }
 
-#player {
-  display: none;
-  margin-bottom: 28px;
-}
+    button:hover {
+      opacity: .88;
+      transform: translateY(-1px);
+    }
 
-#player iframe {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border: 0;
-  border-radius: 12px;
-  background: #000;
-}
+    .primary {
+      background: var(--accent);
+      color: white;
+      white-space: nowrap;
+    }
 
-#player h2 {
-  font-size: 20px;
-}
+    .secondary {
+      background: var(--panel2);
+      color: white;
+      border: 1px solid var(--border);
+    }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 25px 17px;
-}
+    .section-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
 
-.video {
-  cursor: pointer;
-  min-width: 0;
-}
+    h2 { font-size: 23px; }
 
-.thumbnail {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  border-radius: 12px;
-  background: #272727;
-}
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(
+        auto-fill, minmax(min(100%, 260px), 1fr)
+      );
+      gap: 22px;
+    }
 
-.video h3 {
-  font-size: 15px;
-  line-height: 1.4;
-  margin: 9px 0 5px;
-}
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      min-width: 0;
+    }
 
-.video p {
-  color: #aaa;
-  font-size: 13px;
-  margin: 0;
-}
+    .thumbnail {
+      display: block;
+      position: relative;
+      aspect-ratio: 16 / 9;
+      background: #22222b;
+      cursor: pointer;
+      overflow: hidden;
+    }
 
-.video:hover .thumbnail {
-  filter: brightness(1.15);
-}
+    .thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform .25s;
+    }
 
-.empty {
-  color: #aaa;
-  padding: 30px 0;
-}
+    .thumbnail:hover img { transform: scale(1.04); }
 
-@media (max-width: 1000px) {
-  .grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+    .play {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 48, 59, .95);
+      color: white;
+      border-radius: 12px;
+      padding: 10px 17px;
+      font-size: 20px;
+    }
 
-  .sidebar {
-    width: 155px;
-  }
-}
+    .card-body { padding: 14px; }
 
-@media (max-width: 600px) {
-  header {
-    padding: 0 10px;
-    gap: 10px;
-  }
+    .video-title {
+      margin: 0 0 12px;
+      font-size: 16px;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
 
-  .logo {
-    font-size: 18px;
-  }
+    .card-actions {
+      display: flex;
+      gap: 8px;
+    }
 
-  .sidebar {
-    display: none;
-  }
+    .card-actions button {
+      flex: 1;
+      padding: 9px 8px;
+      font-size: 13px;
+    }
 
-  main {
-    padding: 12px;
-  }
+    .empty {
+      text-align: center;
+      border: 1px dashed var(--border);
+      border-radius: 16px;
+      padding: 45px 15px;
+      color: var(--muted);
+      grid-column: 1 / -1;
+    }
 
-  .grid {
-    grid-template-columns: 1fr;
-  }
-}
-</style>
+    .count { color: var(--muted); font-size: 14px; }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 25px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* Video player popup */
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      background: rgba(0,0,0,.88);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal.open { display: flex; }
+
+    .player-box {
+      width: min(900px, 100%);
+      background: var(--panel);
+      padding: 15px;
+      border-radius: 16px;
+    }
+
+    .player-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .player-top h3 {
+      overflow-wrap: anywhere;
+      margin: 0;
+    }
+
+    .player {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border: 0;
+      border-radius: 8px;
+      background: black;
+    }
+
+    @media (max-width: 600px) {
+      header { padding: 14px 5%; }
+      .search { max-width: none; flex-basis: 100%; }
+      .add-row { flex-direction: column; }
+      .add-row button { width: 100%; }
+      main { padding-top: 25px; }
+    }
+  </style>
 </head>
-
 <body>
 
 <header>
-  <div class="logo">▶ <span>Tube</span>Space</div>
-
-  <form class="search" id="searchForm">
-    <input id="searchInput"
-      placeholder="Search videos..."
-      aria-label="Search videos">
-    <button type="submit">🔍</button>
-  </form>
+  <div class="brand">▶ Tube<span>Space</span></div>
+  <div class="search">
+    <input id="search" type="search"
+      placeholder="Search your videos..."
+      aria-label="Search your videos">
+  </div>
 </header>
 
-<div class="layout">
-  <aside class="sidebar">
-    <button class="active" data-view="home">🏠 Home</button>
-    <button data-view="all">🎬 All videos</button>
-    <button data-view="Gaming">🎮 Gaming</button>
-    <button data-view="Music">🎵 Music</button>
-    <button data-view="Education">📚 Education</button>
-    <button data-view="Science">🔬 Science</button>
-  </aside>
+<main>
+  <section class="hero">
+    <h1>Your videos. Your space.</h1>
+    <p>Build your own collection of YouTube videos in one place.</p>
+  </section>
 
-  <main>
-    <div class="categories">
-      <button class="active" data-category="All">All</button>
-      <button data-category="Gaming">Gaming</button>
-      <button data-category="Music">Music</button>
-      <button data-category="Education">Education</button>
-      <button data-category="Science">Science</button>
-      <button data-category="Nature">Nature</button>
+  <section class="add-box">
+    <h2>Add a YouTube video</h2>
+    <p>Paste a video link to add it to your personal library.</p>
+    <form id="add-form" class="add-row">
+      <input id="video-url" type="url"
+        placeholder="https://www.youtube.com/watch?v=..."
+        aria-label="YouTube video URL" required>
+      <button class="primary" type="submit">+ Add Video</button>
+    </form>
+    <p id="message" role="status" aria-live="polite"></p>
+  </section>
+
+  <section>
+    <div class="section-heading">
+      <h2>My Library</h2>
+      <span class="count" id="count">0 videos</span>
     </div>
+    <div class="grid" id="videos"></div>
+  </section>
+</main>
 
-    <section id="player">
-      <iframe id="videoFrame"
-        title="Video player"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        allowfullscreen
-        referrerpolicy="strict-origin-when-cross-origin">
-      </iframe>
-      <h2 id="playerTitle"></h2>
-      <p id="playerInfo" style="color:#aaa"></p>
-      <button id="closePlayer"
-        style="background:#303030;color:white;border:0;padding:10px 16px;border-radius:8px;cursor:pointer">
-        Close player
-      </button>
-    </section>
+<footer>
+  TubeSpace · Your personal YouTube collection
+</footer>
 
-    <h2 id="heading">Recommended videos</h2>
-    <div class="grid" id="videoGrid"></div>
-    <p id="empty" class="empty" hidden>No matching videos found.</p>
-  </main>
+<div class="modal" id="modal" role="dialog"
+  aria-modal="true" aria-label="YouTube video player">
+  <div class="player-box">
+    <div class="player-top">
+      <h3 id="player-title">Now playing</h3>
+      <button class="secondary" id="close-player"
+        type="button" aria-label="Close video player">✕ Close</button>
+    </div>
+    <iframe class="player" id="iframe"
+      title="YouTube video player"
+      src="about:blank"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      referrerpolicy="strict-origin-when-cross-origin"
+      allowfullscreen></iframe>
+  </div>
 </div>
 
 <script>
-const videos = [
-  {
-    title: "Big Buck Bunny - Animated Short Film",
-    channel: "Blender Foundation",
-    category: "Animation",
-    id: "aqz-KE-bpKQ",
-    image: "https://img.youtube.com/vi/aqz-KE-bpKQ/hqdefault.jpg"
-  },
-  {
-    title: "Elephants Dream - Open Movie",
-    channel: "Blender Foundation",
-    category: "Animation",
-    id: "TLkA0RELQ1g",
-    image: "https://img.youtube.com/vi/TLkA0RELQ1g/hqdefault.jpg"
-  },
-  {
-    title: "Sintel - Open Source Animated Film",
-    channel: "Blender Foundation",
-    category: "Animation",
-    id: "eRsGyueVLvQ",
-    image: "https://img.youtube.com/vi/eRsGyueVLvQ/hqdefault.jpg"
-  },
-  {
-    title: "Tears of Steel - Sci-Fi Short Film",
-    channel: "Blender Foundation",
-    category: "Science",
-    id: "R6MlUcmOul8",
-    image: "https://img.youtube.com/vi/R6MlUcmOul8/hqdefault.jpg"
-  },
-  {
-    title: "Nature and Wildlife",
-    channel: "Video Demo",
-    category: "Nature",
-    id: "ScMzIvxBSi4",
-    image: "https://img.youtube.com/vi/ScMzIvxBSi4/hqdefault.jpg"
-  },
-  {
-    title: "Sample Video",
-    channel: "Video Demo",
-    category: "Education",
-    id: "M7lc1UVf-VE",
-    image: "https://img.youtube.com/vi/M7lc1UVf-VE/hqdefault.jpg"
+  const STORAGE_KEY = "tubespace-videos-v1";
+
+  const form = document.getElementById("add-form");
+  const urlInput = document.getElementById("video-url");
+  const searchInput = document.getElementById("search");
+  const videosElement = document.getElementById("videos");
+  const countElement = document.getElementById("count");
+  const messageElement = document.getElementById("message");
+  const modal = document.getElementById("modal");
+  const iframe = document.getElementById("iframe");
+  const playerTitle = document.getElementById("player-title");
+
+  let videos = loadVideos();
+
+  function loadVideos() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+      return Array.isArray(saved)
+        ? saved.filter(v =>
+            v && typeof v.id === "string" &&
+            typeof v.title === "string" &&
+            typeof v.videoId === "string" &&
+            /^[a-zA-Z0-9_-]{11}$/.test(v.videoId))
+        : [];
+    } catch {
+      return [];
+    }
   }
-];
 
-let activeCategory = "All";
-let activeView = "home";
-let searchText = "";
+  function saveVideos() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(videos));
+      return true;
+    } catch {
+      showMessage("Couldn't save changes. Browser storage may be full.");
+      return false;
+    }
+  }
 
-const grid = document.getElementById("videoGrid");
-const searchInput = document.getElementById("searchInput");
-const player = document.getElementById("player");
+  function showMessage(text, error = false) {
+    messageElement.textContent = text;
+    messageElement.style.color = error ? "#ff7777" : "#a1a1aa";
+  }
 
-function renderVideos() {
-  grid.innerHTML = "";
+  function getVideoId(input) {
+    try {
+      const url = new URL(input);
+      const host = url.hostname.toLowerCase().replace(/^www\./, "");
 
-  const filtered = videos.filter(video => {
-    const matchesSearch =
-      (video.title + " " + video.channel + " " + video.category)
-      .toLowerCase()
-      .includes(searchText.toLowerCase());
+      if (host === "youtu.be") {
+        const id = url.pathname.split("/").filter(Boolean)[0];
+        return /^[a-zA-Z0-9_-]{11}$/.test(id || "") ? id : null;
+      }
 
-    const matchesCategory =
-      activeCategory === "All" ||
-      video.category === activeCategory;
+      if (![
+        "youtube.com",
+        "m.youtube.com",
+        "music.youtube.com",
+        "youtube-nocookie.com",
+        "www.youtube-nocookie.com"
+      ].includes(host)) return null;
 
-    return matchesSearch && matchesCategory;
-  });
+      let id = null;
 
-  filtered.forEach(video => {
-    const card = document.createElement("article");
-    card.className = "video";
+      if (url.pathname === "/watch") {
+        id = url.searchParams.get("v");
+      } else {
+        const match = url.pathname.match(
+          /^\/(?:embed|shorts|live)\/([a-zA-Z0-9_-]{11})\/?$/
+        );
+        if (match) id = match[1];
+      }
 
-    const img = document.createElement("img");
-    img.className = "thumbnail";
-    img.src = video.image;
-    img.alt = video.title;
-    img.loading = "lazy";
+      return /^[a-zA-Z0-9_-]{11}$/.test(id || "") ? id : null;
+    } catch {
+      return null;
+    }
+  }
 
-    const title = document.createElement("h3");
-    title.textContent = video.title;
+  function addVideo(videoId) {
+    if (videos.some(v => v.videoId === videoId)) {
+      showMessage("That video is already in your library.", true);
+      return;
+    }
 
-    const info = document.createElement("p");
-    info.textContent = video.channel + " · " + video.category;
+    const video = {
+      id: videoId,
+      videoId,
+      title: "YouTube Video",
+      addedAt: Date.now()
+    };
 
-    card.append(img, title, info);
-    card.addEventListener("click", () => playVideo(video));
-    grid.appendChild(card);
-  });
-
-  document.getElementById("empty").hidden = filtered.length !== 0;
-
-  document.getElementById("heading").textContent =
-    searchText ? "Search results" :
-    activeCategory === "All" ? "Recommended videos" :
-    activeCategory + " videos";
-}
-
-function playVideo(video) {
-  player.style.display = "block";
-  document.getElementById("playerTitle").textContent = video.title;
-  document.getElementById("playerInfo").textContent = video.channel;
-
-  const frame = document.getElementById("videoFrame");
-  frame.src = "https://www.youtube-nocookie.com/embed/" +
-    encodeURIComponent(video.id) + "?autoplay=1";
-
-  player.scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
-function closePlayer() {
-  player.style.display = "none";
-  document.getElementById("videoFrame").src = "";
-}
-
-document.getElementById("closePlayer").addEventListener("click", closePlayer);
-
-document.getElementById("searchForm").addEventListener("submit", event => {
-  event.preventDefault();
-  searchText = searchInput.value.trim();
-  renderVideos();
-});
-
-searchInput.addEventListener("input", () => {
-  searchText = searchInput.value.trim();
-  renderVideos();
-});
-
-document.querySelectorAll("[data-category]").forEach(button => {
-  button.addEventListener("click", () => {
-    activeCategory = button.dataset.category;
-
-    document.querySelectorAll("[data-category]").forEach(item =>
-      item.classList.toggle("active", item === button)
-    );
-
+    videos.unshift(video);
+    saveVideos();
     renderVideos();
-  });
-});
+    showMessage("Video added! You can play it from your library.");
+  }
 
-document.querySelectorAll("[data-view]").forEach(button => {
-  button.addEventListener("click", () => {
-    activeView = button.dataset.view;
-    activeCategory =
-      ["Gaming", "Music", "Education", "Science"].includes(activeView)
-        ? activeView : "All";
-
-    document.querySelectorAll("[data-view]").forEach(item =>
-      item.classList.toggle("active", item === button)
+  function renderVideos() {
+    const query = searchInput.value.trim().toLowerCase();
+    const filtered = videos.filter(v =>
+      v.title.toLowerCase().includes(query) ||
+      v.videoId.toLowerCase().includes(query)
     );
 
-    document.querySelectorAll("[data-category]").forEach(item =>
-      item.classList.toggle("active",
-        item.dataset.category === activeCategory)
-    );
+    countElement.textContent =
+      `${videos.length} video${videos.length === 1 ? "" : "s"}`;
 
-    searchText = "";
-    searchInput.value = "";
-    renderVideos();
+    videosElement.replaceChildren();
+
+    if (!filtered.length) {
+      const empty = document.createElement("div");
+      empty.className = "empty";
+      empty.textContent = query
+        ? "No videos match your search."
+        : "Your library is empty. Add a YouTube link above to get started!";
+      videosElement.appendChild(empty);
+      return;
+    }
+
+    filtered.forEach(video => {
+      const card = document.createElement("article");
+      card.className = "card";
+
+      const thumbnail = document.createElement("div");
+      thumbnail.className = "thumbnail";
+      thumbnail.tabIndex = 0;
+      thumbnail.setAttribute("role", "button");
+      thumbnail.setAttribute("aria-label", `Play ${video.title}`);
+
+      const img = document.createElement("img");
+      img.src = `https://i.ytimg.com/vi/${video.videoId}/hqdefault.jpg`;
+      img.alt = "";
+      img.loading = "lazy";
+      img.onerror = () => {
+        img.style.display = "none";
+      };
+
+      const play = document.createElement("span");
+      play.className = "play";
+      play.textContent = "▶";
+
+      thumbnail.append(img, play);
+      thumbnail.addEventListener("click", () => playVideo(video));
+      thumbnail.addEventListener("keydown", e => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          playVideo(video);
+        }
+      });
+
+      const body = document.createElement("div");
+      body.className = "card-body";
+
+      const title = document.createElement("h3");
+      title.className = "video-title";
+      title.textContent = video.title;
+
+      const actions = document.createElement("div");
+      actions.className = "card-actions";
+
+      const edit = document.createElement("button");
+      edit.className = "secondary";
+      edit.textContent = "Rename";
+      edit.addEventListener("click", () => {
+        const next = prompt("Enter a name for this video:", video.title);
+        if (next === null) return;
+
+        const clean = next.trim().slice(0, 120);
+        if (!clean) {
+          showMessage("Video name cannot be empty.", true);
+          return;
+        }
+
+        video.title = clean;
+        saveVideos();
+        renderVideos();
+      });
+
+      const remove = document.createElement("button");
+      remove.className = "secondary";
+      remove.textContent = "Remove";
+      remove.addEventListener("click", () => {
+        videos = videos.filter(v => v.id !== video.id);
+        saveVideos();
+        renderVideos();
+        showMessage("Video removed from your library.");
+      });
+
+      actions.append(edit, remove);
+      body.append(title, actions);
+      card.append(thumbnail, body);
+      videosElement.appendChild(card);
+    });
+  }
+
+  function playVideo(video) {
+    playerTitle.textContent = video.title;
+    modal.classList.add("open");
+    iframe.src =
+      `https://www.youtube-nocookie.com/embed/${video.videoId}?autoplay=1`;
+    document.getElementById("close-player").focus();
+  }
+
+  function closePlayer() {
+    modal.classList.remove("open");
+    iframe.src = "about:blank";
+  }
+
+  document.getElementById("close-player")
+    .addEventListener("click", closePlayer);
+
+  modal.addEventListener("click", e => {
+    if (e.target === modal) closePlayer();
   });
-});
 
-renderVideos();
+  document.addEventListener("keydown", e => {
+    if (e.key === "Escape") closePlayer();
+  });
+
+  form.addEventListener("submit", e => {
+    e.preventDefault();
+
+    const videoId = getVideoId(urlInput.value.trim());
+
+    if (!videoId) {
+      showMessage(
+        "Please enter a valid YouTube video link, not a channel or playlist.",
+        true
+      );
+      return;
+    }
+
+    addVideo(videoId);
+    urlInput.value = "";
+  });
+
+  searchInput.addEventListener("input", renderVideos);
+
+  renderVideos();
 </script>
-
-</body>
-</html>
