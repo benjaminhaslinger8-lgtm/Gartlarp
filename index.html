@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TubeSpace</title>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #0f0f0f;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+header {
+  height: 65px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 0 22px;
+  background: #0f0f0f;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  border-bottom: 1px solid #242424;
+}
+
+.logo {
+  font-size: 23px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.logo span {
+  color: #ff3333;
+}
+
+.search {
+  display: flex;
+  flex: 1;
+  max-width: 600px;
+  margin: auto;
+}
+
+.search input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #444;
+  background: #181818;
+  color: white;
+  border-radius: 25px 0 0 25px;
+  outline: none;
+  font-size: 15px;
+}
+
+.search button {
+  padding: 0 20px;
+  border: 1px solid #444;
+  background: #292929;
+  color: white;
+  border-radius: 0 25px 25px 0;
+  cursor: pointer;
+}
+
+.layout {
+  display: flex;
+}
+
+.sidebar {
+  width: 205px;
+  padding: 18px 12px;
+  flex-shrink: 0;
+}
+
+.sidebar button {
+  display: block;
+  width: 100%;
+  padding: 13px;
+  background: transparent;
+  border: none;
+  color: white;
+  text-align: left;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.sidebar button:hover,
+.sidebar button.active {
+  background: #303030;
+}
+
+main {
+  flex: 1;
+  min-width: 0;
+  padding: 20px;
+}
+
+.categories {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  margin-bottom: 24px;
+}
+
+.categories button {
+  padding: 9px 15px;
+  background: #272727;
+  color: white;
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.categories button.active,
+.categories button:hover {
+  background: white;
+  color: black;
+}
+
+#player {
+  display: none;
+  margin-bottom: 28px;
+}
+
+#player iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 0;
+  border-radius: 12px;
+  background: #000;
+}
+
+#player h2 {
+  font-size: 20px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 25px 17px;
+}
+
+.video {
+  cursor: pointer;
+  min-width: 0;
+}
+
+.thumbnail {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 12px;
+  background: #272727;
+}
+
+.video h3 {
+  font-size: 15px;
+  line-height: 1.4;
+  margin: 9px 0 5px;
+}
+
+.video p {
+  color: #aaa;
+  font-size: 13px;
+  margin: 0;
+}
+
+.video:hover .thumbnail {
+  filter: brightness(1.15);
+}
+
+.empty {
+  color: #aaa;
+  padding: 30px 0;
+}
+
+@media (max-width: 1000px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sidebar {
+    width: 155px;
+  }
+}
+
+@media (max-width: 600px) {
+  header {
+    padding: 0 10px;
+    gap: 10px;
+  }
+
+  .logo {
+    font-size: 18px;
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  main {
+    padding: 12px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">▶ <span>Tube</span>Space</div>
+
+  <form class="search" id="searchForm">
+    <input id="searchInput"
+      placeholder="Search videos..."
+      aria-label="Search videos">
+    <button type="submit">🔍</button>
+  </form>
+</header>
+
+<div class="layout">
+  <aside class="sidebar">
+    <button class="active" data-view="home">🏠 Home</button>
+    <button data-view="all">🎬 All videos</button>
+    <button data-view="Gaming">🎮 Gaming</button>
+    <button data-view="Music">🎵 Music</button>
+    <button data-view="Education">📚 Education</button>
+    <button data-view="Science">🔬 Science</button>
+  </aside>
+
+  <main>
+    <div class="categories">
+      <button class="active" data-category="All">All</button>
+      <button data-category="Gaming">Gaming</button>
+      <button data-category="Music">Music</button>
+      <button data-category="Education">Education</button>
+      <button data-category="Science">Science</button>
+      <button data-category="Nature">Nature</button>
+    </div>
+
+    <section id="player">
+      <iframe id="videoFrame"
+        title="Video player"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen
+        referrerpolicy="strict-origin-when-cross-origin">
+      </iframe>
+      <h2 id="playerTitle"></h2>
+      <p id="playerInfo" style="color:#aaa"></p>
+      <button id="closePlayer"
+        style="background:#303030;color:white;border:0;padding:10px 16px;border-radius:8px;cursor:pointer">
+        Close player
+      </button>
+    </section>
+
+    <h2 id="heading">Recommended videos</h2>
+    <div class="grid" id="videoGrid"></div>
+    <p id="empty" class="empty" hidden>No matching videos found.</p>
+  </main>
+</div>
+
+<script>
+const videos = [
+  {
+    title: "Big Buck Bunny - Animated Short Film",
+    channel: "Blender Foundation",
+    category: "Animation",
+    id: "aqz-KE-bpKQ",
+    image: "https://img.youtube.com/vi/aqz-KE-bpKQ/hqdefault.jpg"
+  },
+  {
+    title: "Elephants Dream - Open Movie",
+    channel: "Blender Foundation",
+    category: "Animation",
+    id: "TLkA0RELQ1g",
+    image: "https://img.youtube.com/vi/TLkA0RELQ1g/hqdefault.jpg"
+  },
+  {
+    title: "Sintel - Open Source Animated Film",
+    channel: "Blender Foundation",
+    category: "Animation",
+    id: "eRsGyueVLvQ",
+    image: "https://img.youtube.com/vi/eRsGyueVLvQ/hqdefault.jpg"
+  },
+  {
+    title: "Tears of Steel - Sci-Fi Short Film",
+    channel: "Blender Foundation",
+    category: "Science",
+    id: "R6MlUcmOul8",
+    image: "https://img.youtube.com/vi/R6MlUcmOul8/hqdefault.jpg"
+  },
+  {
+    title: "Nature and Wildlife",
+    channel: "Video Demo",
+    category: "Nature",
+    id: "ScMzIvxBSi4",
+    image: "https://img.youtube.com/vi/ScMzIvxBSi4/hqdefault.jpg"
+  },
+  {
+    title: "Sample Video",
+    channel: "Video Demo",
+    category: "Education",
+    id: "M7lc1UVf-VE",
+    image: "https://img.youtube.com/vi/M7lc1UVf-VE/hqdefault.jpg"
+  }
+];
+
+let activeCategory = "All";
+let activeView = "home";
+let searchText = "";
+
+const grid = document.getElementById("videoGrid");
+const searchInput = document.getElementById("searchInput");
+const player = document.getElementById("player");
+
+function renderVideos() {
+  grid.innerHTML = "";
+
+  const filtered = videos.filter(video => {
+    const matchesSearch =
+      (video.title + " " + video.channel + " " + video.category)
+      .toLowerCase()
+      .includes(searchText.toLowerCase());
+
+    const matchesCategory =
+      activeCategory === "All" ||
+      video.category === activeCategory;
+
+    return matchesSearch && matchesCategory;
+  });
+
+  filtered.forEach(video => {
+    const card = document.createElement("article");
+    card.className = "video";
+
+    const img = document.createElement("img");
+    img.className = "thumbnail";
+    img.src = video.image;
+    img.alt = video.title;
+    img.loading = "lazy";
+
+    const title = document.createElement("h3");
+    title.textContent = video.title;
+
+    const info = document.createElement("p");
+    info.textContent = video.channel + " · " + video.category;
+
+    card.append(img, title, info);
+    card.addEventListener("click", () => playVideo(video));
+    grid.appendChild(card);
+  });
+
+  document.getElementById("empty").hidden = filtered.length !== 0;
+
+  document.getElementById("heading").textContent =
+    searchText ? "Search results" :
+    activeCategory === "All" ? "Recommended videos" :
+    activeCategory + " videos";
+}
+
+function playVideo(video) {
+  player.style.display = "block";
+  document.getElementById("playerTitle").textContent = video.title;
+  document.getElementById("playerInfo").textContent = video.channel;
+
+  const frame = document.getElementById("videoFrame");
+  frame.src = "https://www.youtube-nocookie.com/embed/" +
+    encodeURIComponent(video.id) + "?autoplay=1";
+
+  player.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function closePlayer() {
+  player.style.display = "none";
+  document.getElementById("videoFrame").src = "";
+}
+
+document.getElementById("closePlayer").addEventListener("click", closePlayer);
+
+document.getElementById("searchForm").addEventListener("submit", event => {
+  event.preventDefault();
+  searchText = searchInput.value.trim();
+  renderVideos();
+});
+
+searchInput.addEventListener("input", () => {
+  searchText = searchInput.value.trim();
+  renderVideos();
+});
+
+document.querySelectorAll("[data-category]").forEach(button => {
+  button.addEventListener("click", () => {
+    activeCategory = button.dataset.category;
+
+    document.querySelectorAll("[data-category]").forEach(item =>
+      item.classList.toggle("active", item === button)
+    );
+
+    renderVideos();
+  });
+});
+
+document.querySelectorAll("[data-view]").forEach(button => {
+  button.addEventListener("click", () => {
+    activeView = button.dataset.view;
+    activeCategory =
+      ["Gaming", "Music", "Education", "Science"].includes(activeView)
+        ? activeView : "All";
+
+    document.querySelectorAll("[data-view]").forEach(item =>
+      item.classList.toggle("active", item === button)
+    );
+
+    document.querySelectorAll("[data-category]").forEach(item =>
+      item.classList.toggle("active",
+        item.dataset.category === activeCategory)
+    );
+
+    searchText = "";
+    searchInput.value = "";
+    renderVideos();
+  });
+});
+
+renderVideos();
+</script>
+
+</body>
+</html>
